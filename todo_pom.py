@@ -4,20 +4,29 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 
-class PageElement(ABC):
-
-    def __init__(self, webdriver, url=''):
-        self.webdriver = webdriver
-        self.url = url
-
-    def open(self):
-        return self.webdriver.get(self.url)
-    
+class SeleniumObject():
     def find_element(self, locator):
         return self.webdriver.find_element(*locator)
 
     def find_elements(self, locator):
         return self.webdriver.find_elements(*locator)
+    
+
+class Page(SeleniumObject, ABC):
+    
+    def __init__(self, webdriver, url=''):
+        self.webdriver = webdriver
+        self.url = url
+        
+    def open(self):
+        return self.webdriver.get(self.url)
+
+
+class PageElement(SeleniumObject, ABC):
+
+    def __init__(self, webdriver):
+        self.webdriver = webdriver
+
 
 class Task(PageElement):
 
@@ -76,13 +85,20 @@ class Card():
             self.selenium_obj.find_element(*self._cancel).click()
         except NoSuchElementException:
             print('Element has no cancel button')
-            
+
     def _load(self):
         self.name = self.selenium_obj.find_element(*self.name).text
         self.description = self.selenium_obj.find_element(*self.description).text
 
     def __repr__(self):
         return f'Card(name="{self.name}", description="{self.description}")'
+    
+
+class PageToDo(Page):
+    todo = ToDo()
+    doing = Doing()
+    done = Done()
+    task = Task()
 
 # --------------------------------------------------------
 from selenium import webdriver
@@ -93,20 +109,4 @@ options = webdriver.ChromeOptions()
 webdriver = webdriver.Chrome(service=service, options=options)
 url = 'https://selenium.dunossauro.live/todo_list.html'
 
-task_element = Task(webdriver, url)
-task_element.open()
-task_element.create_task(
-    name='Estudar',
-    description='Selenium e python para automacao de testes'
-)
-
-todo = ToDo(webdriver)
-doing = Doing(webdriver)
-done = Done(webdriver)
-
-todos = todo.todos()
-todos[0].do()
-time.sleep(1)
-todos[0].do()
-print(done.todos())
-time.sleep(3)
+page = PageToDo(webdriver, url)
