@@ -1,15 +1,17 @@
+from abc import ABC
 from selenium.webdriver.common.by import By
 
-class Todo:
+
+class PageElement(ABC):
     def __init__(self, webdriver):
-        """
-        Attr = locator
-        """
-        self.name = (By.ID, 'todo-name')
-        self.description = (By.ID, 'todo-desc')
-        self.urgent = (By.ID, 'todo-next')
-        self.submit = (By.ID, 'todo-submit')
         self.webdriver = webdriver
+
+
+class Todo(PageElement):
+    name = (By.ID, 'todo-name')
+    description = (By.ID, 'todo-desc')
+    urgent = (By.ID, 'todo-next')
+    submit = (By.ID, 'todo-submit')
 
     def create_task(self, name, description, urgent=False):
         self.webdriver.find_element(*self.name).send_keys(name)
